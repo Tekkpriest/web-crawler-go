@@ -10,9 +10,9 @@ Broken links won't be treated as an error but instead are being documented as we
 
 The program will exit with 3 possible status codes:
 
-0 - all links good
-1 - broken links found
-2 - user errors (like missing url or flags)
+- 0 - all links good
+- 1 - broken links found
+- 2 - user errors (like missing url or flags)
 
 This also allows for the project to be used in CI, if you so choose.
 
@@ -63,7 +63,7 @@ double results might be possible.
 
 -json currently might write {} instead of a readable output when network errors are present.
 
-Also only <a href> is currently being crawled, <link> tags are not present currently.
+Also only `<a href>` is currently being crawled, `<link>` tags are not present currently.
 
 ## Roadmap to next version
 
