@@ -9,25 +9,24 @@ import (
 )
 
 func Extract(r io.Reader, base *url.URL) ([]*url.URL, error) {
+	if base == nil || !base.IsAbs() {
+		return nil, fmt.Errorf("base url must be absolute, got: %v", base)
+	}
 	node, err := html.Parse(r)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing html: %w", err)
+		return nil, fmt.Errorf("parsing html: %w", err)
 	}
 
-	var out []*url.URL
-	walk(node, base, &out)
+	var found []*url.URL
+	var walk func(*html.Node)
 
-	return out, nil
-}
+	walk = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, a := range n.Attr {
+				if a.Key != "href" {
+					continue
+				}
 
-func walk(node *html.Node, base *url.URL, out *[]*url.URL) {
-	if node == nil {
-		return
-	}
-
-	if node.Type == html.ElementNode && node.Data == "a" {
-		for _, a := range node.Attr {
-			if a.Key == "href" {
 				linkURL, err := url.Parse(a.Val)
 				if err != nil {
 					continue
@@ -35,13 +34,17 @@ func walk(node *html.Node, base *url.URL, out *[]*url.URL) {
 
 				absoluteURL := base.ResolveReference(linkURL)
 				if absoluteURL.Scheme == "http" || absoluteURL.Scheme == "https" {
-					*out = append(*out, absoluteURL)
+					found = append(found, absoluteURL)
 				}
 			}
 		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
 	}
 
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		walk(c, base, out)
-	}
+	walk(node)
+
+	return found, nil
 }

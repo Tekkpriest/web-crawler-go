@@ -69,7 +69,7 @@ func TestExtract(t *testing.T) {
 			want: []string{},
 		},
 		{
-			name: "fragment links", // change after crawl normalisation
+			name: "fragment links",
 			html: `<a href="#top">t</a>`,
 			base: "https://example.com/index",
 			want: []string{"https://example.com/index#top"},
@@ -94,7 +94,7 @@ func TestExtract(t *testing.T) {
 			}
 
 			if !slices.Equal(got, tt.want) {
-				t.Errorf("expected %v, but got %v instead", tt.want, got)
+				t.Errorf("Extract() = %v, want %v", got, tt.want)
 			}
 		})
 	}
